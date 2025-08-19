@@ -1,141 +1,95 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
---//Toggle\\--
-getgenv().Toggle = true -- This toggles the esp, turning it to false will turn it off
-getgenv().TC = false -- This toggles team check, turning it on will turn on team check
-local PlayerName = "Name" -- You can decide if you want the Player's name to be a display name which is "DisplayName", or username which is "Name"
-
---//Variables\\--
-local P = game:GetService("Players")
-local LP = P.LocalPlayer
-
---//Debounce\\--
-local DB = false
-
---//Notification\\--
-game.StarterGui:SetCore("SendNotification", {
-	Title = "Notification",
-	Text = "Best ESP by.ExluZive" ,
-	Button1 = "Shut Up",
-	Duration = math.huge
-})
-
---//Loop\\--
-while task.wait() do
-	if not getgenv().Toggle then
-		break
-	end
-	if DB then 
-		return 
-	end
-	DB = true
-
-	pcall(function()
-		for i,v in pairs(P:GetChildren()) do
-			if v:IsA("Player") then
-				if v ~= LP then
-					if v.Character then
-
-						local pos = math.floor(((LP.Character:FindFirstChild("HumanoidRootPart")).Position - (v.Character:FindFirstChild("HumanoidRootPart")).Position).magnitude)
-						-- Credits to Infinite Yield for this part (pos) ^^^^^^
-
-						if v.Character:FindFirstChild("Totally NOT Esp") == nil and v.Character:FindFirstChild("Icon") == nil and getgenv().TC == false then
-							--//ESP-Highlight\\--
-							local ESP = Instance.new("Highlight", v.Character)
-
-							ESP.Name = "Totally NOT Esp"
-							ESP.Adornee = v.Character
-							ESP.Archivable = true
-							ESP.Enabled = true
-							ESP.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-							ESP.FillColor = v.TeamColor.Color
-							ESP.FillTransparency = 0.5
-							ESP.OutlineColor = Color3.fromRGB(255, 255, 255)
-							ESP.OutlineTransparency = 0
-
-							--//ESP-Text\\--
-							local Icon = Instance.new("BillboardGui", v.Character)
-							local ESPText = Instance.new("TextLabel")
-
-							Icon.Name = "Icon"
-							Icon.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-							Icon.Active = true
-							Icon.AlwaysOnTop = true
-							Icon.ExtentsOffset = Vector3.new(0, 1, 0)
-							Icon.LightInfluence = 1.000
-							Icon.Size = UDim2.new(0, 800, 0, 50)
-
-							ESPText.Name = "ESP Text"
-							ESPText.Parent = Icon
-							ESPText.BackgroundColor3 = v.TeamColor.Color
-							ESPText.BackgroundTransparency = 1.000
-							ESPText.Size = UDim2.new(0, 800, 0, 50)
-							ESPText.Font = Enum.Font.SciFi
-							ESPText.Text = v[PlayerName].." | Distance: "..pos
-							ESPText.TextColor3 = v.TeamColor.Color
-							ESPText.TextSize = 10.800
-							ESPText.TextWrapped = true
-						else
-							if v.TeamColor ~= LP.TeamColor and v.Character:FindFirstChild("Totally NOT Esp") == nil and v.Character:FindFirstChild("Icon") == nil and getgenv().TC == true then
-								--//ESP-Highlight\\--
-								local ESP = Instance.new("Highlight", v.Character)
-
-								ESP.Name = "Totally NOT Esp"
-								ESP.Adornee = v.Character
-								ESP.Archivable = true
-								ESP.Enabled = true
-								ESP.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-								ESP.FillColor = v.TeamColor.Color
-								ESP.FillTransparency = 0.5
-								ESP.OutlineColor = Color3.fromRGB(255, 255, 255)
-								ESP.OutlineTransparency = 0
-
-								--//ESP-Text\\--
-								local Icon = Instance.new("BillboardGui", v.Character)
-								local ESPText = Instance.new("TextLabel")
-
-								Icon.Name = "Icon"
-								Icon.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-								Icon.Active = true
-								Icon.AlwaysOnTop = true
-								Icon.ExtentsOffset = Vector3.new(0, 1, 0)
-								Icon.LightInfluence = 1.000
-								Icon.Size = UDim2.new(0, 800, 0, 50)
-
-								ESPText.Name = "ESP Text"
-								ESPText.Parent = Icon
-								ESPText.BackgroundColor3 = v.TeamColor.Color
-								ESPText.BackgroundTransparency = 1.000
-								ESPText.Size = UDim2.new(0, 800, 0, 50)
-								ESPText.Font = Enum.Font.SciFi
-								ESPText.Text = v[PlayerName].." | Distance: "..pos
-								ESPText.TextColor3 = v.TeamColor.Color
-								ESPText.TextSize = 10.800
-								ESPText.TextWrapped = true
-							else
-								if not v.Character:FindFirstChild("Totally NOT Esp").FillColor == v.TeamColor.Color and not v.Character:FindFirstChild("Icon").TextColor3 == v.TeamColor.Color then
-									v.Character:FindFirstChild("Totally NOT Esp").FillColor = v.TeamColor.Color
-									v.Character:FindFirstChild("Icon").TextColor3 = v.TeamColor.Color
-								else
-									if v.Character:FindFirstChild("Totally NOT Esp").Enabled == false and v.Character:FindFirstChild("Icon").Enabled == false then
-										v.Character:FindFirstChild("Totally NOT Esp").Enabled = true
-										v.Character:FindFirstChild("Icon").Enabled = true
-									else
-										if v.Character:FindFirstChild("Icon") then
-											v.Character:FindFirstChild("Icon")["ESP Text"].Text = v[PlayerName].." | Distance: "..pos
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-	end)
-
-	wait()
-
-	DB = false
+-- Variables
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+ 
+local chamsEnabled = false
+ 
+-- Create the ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ChamsScreenGui"
+screenGui.Parent = playerGui  -- Attach the ScreenGui to the player's GUI
+ 
+-- Create the ToggleButton
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Text = "Enable Chams"
+toggleButton.Position = UDim2.new(0.4, 0, 0.1, 0)  -- Centered on the screen
+toggleButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)  -- White text
+toggleButton.BackgroundColor3 = Color3.new(0, 0, 0)  -- Black background
+toggleButton.Parent = screenGui  -- Attach the button to the ScreenGui
+ 
+-- Function to add Chams (BoxHandleAdornment)
+local function addChams(player)
+    if player.Character then
+        for _, part in pairs(player.Character:GetChildren()) do
+            if part:IsA("BasePart") then
+                -- Create the BoxHandleAdornment
+                local chams = Instance.new("BoxHandleAdornment")
+                chams.Name = "Chams"
+                chams.AlwaysOnTop = true  -- Makes it visible through walls
+                chams.ZIndex = 0  -- Layering control
+                chams.Adornee = part  -- Attach it to the player's body part
+                chams.Color3 = Color3.new(0, 1, 0)  -- Green color (you can change this)
+                chams.Transparency = 0.3  -- Adjust transparency (lower is more visible)
+                chams.Size = part.Size + Vector3.new(0.1, 0.1, 0.1)  -- Slightly larger than the part
+                chams.Parent = part  -- Parent it to the part so it stays with the character
+            end
+        end
+    end
 end
+ 
+-- Function to remove Chams (BoxHandleAdornment)
+local function removeChams(player)
+    if player.Character then
+        for _, part in pairs(player.Character:GetChildren()) do
+            if part:IsA("BasePart") then
+                local cham = part:FindFirstChild("Chams")
+                if cham then
+                    cham:Destroy()  -- Remove the Chams adornment
+                end
+            end
+        end
+    end
+end
+ 
+-- Function to toggle Chams for all players
+local function toggleChams()
+    if chamsEnabled then
+        -- Disable Chams
+        for _, player in pairs(players:GetPlayers()) do
+            if player ~= localPlayer then
+                removeChams(player)
+            end
+        end
+    else
+        -- Enable Chams
+        for _, player in pairs(players:GetPlayers()) do
+            if player ~= localPlayer then
+                addChams(player)
+            end
+        end
+    end
+    chamsEnabled = not chamsEnabled
+    toggleButton.Text = chamsEnabled and "Disable Chams" or "Enable Chams"
+end
+ 
+-- Toggle Chams on button click
+toggleButton.MouseButton1Click:Connect(function()
+    toggleChams()
+end)
+ 
+-- Add Chams when a new player joins the game
+players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        if chamsEnabled then
+            addChams(player)
+        end
+    end)
+end)
+ 
+-- Remove Chams when a player leaves the game
+players.PlayerRemoving:Connect(function(player)
+    removeChams(player)
+end)
