@@ -5,18 +5,17 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 
 local playerESPEnabled = false
-local chamsEnabled = false
 local espObjects = {}
 
 -- Create the ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ESPChamsScreenGui"
+screenGui.Name = "ESPScreenGui"
 screenGui.Parent = playerGui  -- Attach the ScreenGui to the player's GUI
 
--- Create the ToggleButton for ESP and Chams
+-- Create the ToggleButton for ESP
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleButton"
-toggleButton.Text = "Enable ESP & Chams"
+toggleButton.Text = "Enable ESP"
 toggleButton.Position = UDim2.new(0.4, 0, 0.1, 0)  -- Centered on the screen
 toggleButton.Size = UDim2.new(0.2, 0, 0.1, 0)
 toggleButton.TextColor3 = Color3.new(1, 1, 1)  -- White text
@@ -70,87 +69,42 @@ local function updatePlayerESP(state)
     end
 end
 
--- Function to add Chams (BoxHandleAdornment) for players
-local function addChams(player)
-    if player.Character then
-        for _, part in pairs(player.Character:GetChildren()) do
-            if part:IsA("BasePart") then
-                -- Create the BoxHandleAdornment
-                local chams = Instance.new("BoxHandleAdornment")
-                chams.Name = "Chams"
-                chams.AlwaysOnTop = true  -- Makes it visible through walls
-                chams.ZIndex = 0  -- Layering control
-                chams.Adornee = part  -- Attach it to the player's body part
-                chams.Color3 = Color3.fromRGB(128, 0, 128)  -- Purple color
-                chams.Transparency = 0.3  -- Adjust transparency (lower is more visible)
-                chams.Size = part.Size + Vector3.new(0.1, 0.1, 0.1)  -- Slightly larger than the part
-                chams.Parent = part  -- Parent it to the part so it stays with the character
-            end
-        end
-    end
-end
-
--- Function to remove Chams (BoxHandleAdornment) for players
-local function removeChams(player)
-    if player.Character then
-        for _, part in pairs(player.Character:GetChildren()) do
-            if part:IsA("BasePart") then
-                local cham = part:FindFirstChild("Chams")
-                if cham then
-                    cham:Destroy()  -- Remove the Chams adornment
-                end
-            end
-        end
-    end
-end
-
--- Function to toggle ESP & Chams for all players
-local function toggleESPChams()
-    if playerESPEnabled and chamsEnabled then
-        -- Disable ESP & Chams
+-- Function to toggle ESP for all players
+local function toggleESP()
+    if playerESPEnabled then
+        -- Disable ESP
         for _, player in pairs(players:GetPlayers()) do
-            if player ~= localPlayer then
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 removeESP(player.Character.HumanoidRootPart)
-                removeChams(player)
             end
         end
     else
-        -- Enable ESP & Chams
+        -- Enable ESP
         for _, player in pairs(players:GetPlayers()) do
-            if player ~= localPlayer then
-                if playerESPEnabled then
-                    createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(128, 0, 128))  -- Purple color
-                end
-                if chamsEnabled then
-                    addChams(player)
-                end
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(128, 0, 128))  -- Purple color
             end
         end
     end
     playerESPEnabled = not playerESPEnabled
-    chamsEnabled = not chamsEnabled
-    toggleButton.Text = (playerESPEnabled and chamsEnabled) and "Disable ESP & Chams" or "Enable ESP & Chams"
+    toggleButton.Text = playerESPEnabled and "Disable ESP" or "Enable ESP"
 end
 
--- Toggle ESP & Chams on button click
+-- Toggle ESP on button click
 toggleButton.MouseButton1Click:Connect(function()
-    toggleESPChams()
+    toggleESP()
 end)
 
--- Add ESP & Chams when a new player joins the game
+-- Add ESP when a new player joins the game
 players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function()
         if playerESPEnabled then
             createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(128, 0, 128))  -- Purple color
         end
-        if chamsEnabled then
-            addChams(player)
-        end
     end)
 end)
 
--- Remove ESP & Chams when a player leaves the game
+-- Remove ESP when a player leaves the game
 players.PlayerRemoving:Connect(function(player)
     removeESP(player.Character.HumanoidRootPart)
-    removeChams(player)
 end)
