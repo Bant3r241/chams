@@ -10,9 +10,9 @@ local espObjects = {}
 -- Chams Adjustments (Enabled by default)
 local ChamsAdjustments = {
     Enabled = true,  -- Chams will be on by default
-    OutlineColor = Color3.fromRGB(255, 255, 255),
+    OutlineColor = Color3.fromRGB(0, 60, 0),  -- Dark green outline
     OutlineTransparency = 0,
-    FillColor = Color3.fromRGB(120, 255, 0),
+    FillColor = Color3.fromRGB(0, 100, 0),  -- Dark green fill
     FillTransparency = 0,
 }
 
@@ -54,7 +54,7 @@ end
 local function updatePlayerESP()
     for _, player in pairs(players:GetPlayers()) do
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(128, 0, 128))  -- Purple color
+            createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(0, 100, 0))  -- Dark green color
         end
     end
 end
@@ -117,7 +117,7 @@ RunService.Stepped:Connect(function()
         if player ~= localPlayer and player.Character then
             -- Update ESP for the player
             if player.Character:FindFirstChild("HumanoidRootPart") then
-                createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(128, 0, 128))  -- Purple color
+                createESP(player.Character.HumanoidRootPart, player.Name, Color3.fromRGB(0, 100, 0))  -- Dark green color
             end
             -- Update Chams for the player if enabled
             if ChamsAdjustments.Enabled then
