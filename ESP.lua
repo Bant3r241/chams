@@ -1,4 +1,4 @@
--- Ensure global flag is defined
+-- Global flag: whether ESP is enabled
 if _G.ESP == nil then _G.ESP = true end
 
 -- Services
@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- ESP Container
+-- Create or get the main ScreenGui container
 local screenGui = PlayerGui:FindFirstChild("ESPScreenGui")
 if not screenGui then
     screenGui = Instance.new("ScreenGui")
@@ -16,7 +16,7 @@ if not screenGui then
     screenGui.Parent = PlayerGui
 end
 
--- Chams Configuration
+-- Chams settings
 local ChamsAdjustments = {
     Enabled = true,
     OutlineColor = Color3.fromRGB(0, 60, 0),
@@ -25,7 +25,7 @@ local ChamsAdjustments = {
     FillTransparency = 0
 }
 
--- Chams Handler
+-- Add chams (Highlight) to a player's character
 local function AddChams(player)
     if not player.Character then return end
     if player.Character:FindFirstChild(player.Name .. "_Chams") then return end
@@ -40,23 +40,25 @@ local function AddChams(player)
     highlight.Parent = player.Character
 end
 
+-- Remove chams from a player's character
 local function RemoveChams(player)
     if not player.Character then return end
     local cham = player.Character:FindFirstChild(player.Name .. "_Chams")
     if cham then cham:Destroy() end
 end
 
+-- Remove all chams from all players
 local function RemoveAllChams()
     for _, player in ipairs(Players:GetPlayers()) do
         RemoveChams(player)
     end
 end
 
--- Name ESP
+-- Create ESP name tag for a part
 local function CreateESP(part, playerName)
     if not part or not part:IsA("BasePart") then return end
 
-    -- Check if this part already has ESP
+    -- Avoid duplicates
     for _, gui in pairs(screenGui:GetChildren()) do
         if gui:IsA("BillboardGui") and gui.Adornee == part then
             return
@@ -83,7 +85,9 @@ local function CreateESP(part, playerName)
     label.Parent = billboard
 end
 
+-- Remove all ESP name tags (BillboardGuis)
 local function RemoveAllNameTags()
+    if not screenGui then return end
     for _, child in pairs(screenGui:GetChildren()) do
         if child:IsA("BillboardGui") and child.Name == "ESP_Billboard" then
             child:Destroy()
@@ -91,20 +95,20 @@ local function RemoveAllNameTags()
     end
 end
 
--- Main ESP Loop Handler
+-- Main loop connection holder
 local espConnection
 
 local function EnableESP()
-    -- Start render loop
+    -- Start updating ESP each frame
     espConnection = RunService.Stepped:Connect(function()
         if not _G.ESP then return end
 
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                -- Name ESP
+                -- Create name ESP
                 CreateESP(player.Character.HumanoidRootPart, player.Name)
 
-                -- Chams
+                -- Add chams if enabled
                 if ChamsAdjustments.Enabled then
                     AddChams(player)
                 else
@@ -116,23 +120,23 @@ local function EnableESP()
 end
 
 local function DisableESP()
-    -- Disconnect loop
+    -- Stop the loop
     if espConnection then
         espConnection:Disconnect()
         espConnection = nil
     end
 
-    -- Clean up
+    -- Remove everything
     RemoveAllNameTags()
     RemoveAllChams()
 
-    local existing = PlayerGui:FindFirstChild("ESPScreenGui")
-    if existing then
-        existing:ClearAllChildren()
+    -- Extra: clear ScreenGui children (should be empty now)
+    if screenGui then
+        screenGui:ClearAllChildren()
     end
 end
 
--- PlayerAdded/Removed Handling
+-- Player joined - add chams on spawn if ESP enabled
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function()
         if _G.ESP and ChamsAdjustments.Enabled then
@@ -141,11 +145,12 @@ Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
+-- Player leaving - remove chams cleanup
 Players.PlayerRemoving:Connect(function(player)
     RemoveChams(player)
 end)
 
--- INIT
+-- Init on script run
 if _G.ESP then
     EnableESP()
 else
